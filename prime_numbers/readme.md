@@ -1,7 +1,6 @@
 # Challenge: Optimus Prime
-## Find the First X prime numbers
-
 #### Time alotted: 15-20 minutes
+
 ### Scenario
 Write a stand alone script that will produce the first `x` prime numbers. This can be printed out one at a time or as a single set.
 
