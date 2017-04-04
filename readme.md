@@ -3,5 +3,3 @@ I don't know about you but I suck at doing coding challenges. Even the simplest 
 
 As such I am compiling code challenges that I have done along with their answers such that perhaps you will see this here and know in your heart of hearts that it is not you, it's me.
 
-## Find the First X prime numbers
-### Challenge: Prime Numbers
