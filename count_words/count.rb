@@ -3,9 +3,10 @@
 # finds and counts words
 class WordFinder
   class ArgError < ArgumentError; end
-  attr_reader :words, :file
+  attr_accessor :words, :file
 
   def initialize(filename, words = nil)
+    raise ArgumentError.new(arg_error) unless filename
     raise ArgError.new('Cannot find file. Ensure a valid path is used.') unless File.exists?(filename)
     @file = filename
     @words = words_to_array(words)
@@ -21,8 +22,16 @@ class WordFinder
     end
   end
 
-  def all_tags
-    columns(tags)
+  def tags
+    columns(hashtags)
+  end
+
+  def lines
+    words.each do |word|
+      File.foreach(file).each do |line|
+        puts line if line.match(regex(word))
+      end
+    end
   end
 
   private
@@ -37,7 +46,7 @@ class WordFinder
     [total, related_tags]
   end
 
-  def tags
+  def hashtags
     File.foreach(file).flat_map { |l| parse_tags(l) }.compact.uniq
   end
 
@@ -67,13 +76,24 @@ class WordFinder
     space = length - word.length
     "#{word}#{' ' * space}"
   end
+
+  protected
+
+  def arg_error
+    "Usage: count [filename] (options)\n" \
+    "Options:\n" \
+    "--tags          \tDisplays all availabled hashtags in a file\n" \
+    "--lines=[word]  \tDisplays all lines that contain a speicified hashtag\n" \
+    "--words=[words] \tList of one ore more hashtags separated by a comma"
+  end
 end
 
 # run script
-if ARGV[1] == '--tags'
-  finder = WordFinder.new(ARGV[0])
-  finder.all_tags
-else
-  finder = WordFinder.new(ARGV[0], ARGV[1])
-  finder.count
+flag, words = ARGV[1].split('=') rescue [nil, nil]
+finder = WordFinder.new(ARGV[0], words)
+case flag
+when '--tags'  then finder.tags
+when /--lines/ then finder.lines
+when /--words/ then finder.count
+else finder.count
 end
