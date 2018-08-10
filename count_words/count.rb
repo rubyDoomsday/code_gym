@@ -6,7 +6,7 @@ class WordFinder
   attr_accessor :words, :file
 
   def initialize(filename, words = nil)
-    raise ArgumentError.new(arg_error) unless filename
+    raise ArgError.new(arg_error) unless filename
     raise ArgError.new('Cannot find file. Ensure a valid path is used.') unless File.exists?(filename)
     @file = filename
     @words = words_to_array(words)
@@ -89,11 +89,15 @@ class WordFinder
 end
 
 # run script
-flag, words = ARGV[1].split('=') rescue [nil, nil]
-finder = WordFinder.new(ARGV[0], words)
-case flag
-when '--tags'  then finder.tags
-when /--lines/ then finder.lines
-when /--words/ then finder.count
-else finder.count
+begin
+  flag, words = ARGV[1].nil? ? [nil, nil] : ARGV[1].split('=')
+  finder = WordFinder.new(ARGV[0], words)
+  case flag
+  when '--tags'  then finder.tags
+  when /--lines/ then finder.lines
+  when /--words/ then finder.count
+  else finder.count
+  end
+rescue => e
+  puts e.message
 end
