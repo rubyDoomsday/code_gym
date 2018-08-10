@@ -1,13 +1,30 @@
 #! /usr/bin/env ruby
 
+# custome error class
+class ArgError < ArgumentError
+  def message
+    "Usage: count [filename] (options)\n" \
+    "Options:\n" \
+    "--tags          \tDisplays all availabled hashtags in a file\n" \
+    "--lines=[word]  \tDisplays all lines that contain a speicified hashtag\n" \
+    "--words=[words] \tList of one ore more hashtags separated by a comma"
+  end
+end
+
+# custom error class
+class FileNotFound < StandardError
+  def message
+    'Cannot find file. Ensure a valid path is used.'
+  end
+end
+
 # finds and counts words
 class WordFinder
-  class ArgError < ArgumentError; end
   attr_accessor :words, :file
 
   def initialize(filename, words = nil)
-    raise ArgError.new(arg_error) unless filename
-    raise ArgError.new('Cannot find file. Ensure a valid path is used.') unless File.exists?(filename)
+    raise ArgError unless filename
+    raise FileNotFound unless File.exist?(filename)
     @file = filename
     @words = words_to_array(words)
   end
@@ -15,9 +32,9 @@ class WordFinder
   def count
     words.each do |word|
       total, related_tags = scan(word)
-      puts "---"
+      puts '---'
       puts "### You have #{total} days marked #{word} in #{file.split('.')[0]}."
-      puts "#### Related tags:"
+      puts '#### Related tags:'
       columns(related_tags.compact.uniq)
     end
   end
@@ -76,16 +93,6 @@ class WordFinder
     space = length - word.length
     "#{word}#{' ' * space}"
   end
-
-  protected
-
-  def arg_error
-    "Usage: count [filename] (options)\n" \
-    "Options:\n" \
-    "--tags          \tDisplays all availabled hashtags in a file\n" \
-    "--lines=[word]  \tDisplays all lines that contain a speicified hashtag\n" \
-    "--words=[words] \tList of one ore more hashtags separated by a comma"
-  end
 end
 
 # run script
@@ -98,6 +105,6 @@ begin
   when /--words/ then finder.count
   else finder.count
   end
-rescue => e
+rescue ArgError, FileNotFound => e
   puts e.message
 end
